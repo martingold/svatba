@@ -13,7 +13,7 @@
     <noscript>
         <link rel="stylesheet" href="assets/css/noscript.css"/>
     </noscript>
-</head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/dropzone.css" integrity="sha512-7uSoC3grlnRktCWoO4LjHMjotq8gf9XDFQerPuaph+cqR7JC9XKGdvN+UwZMC14aAaBDItdRj3DcSDs4kMWUgg==" crossorigin="anonymous" referrerpolicy="no-referrer" /></head>
 <body class="is-preload">
 
 <!-- Wrapper-->
@@ -26,7 +26,7 @@
         <a href="#program" class="icon solid fa-clock"><span>Program</span></a>
         <a href="#hotel" class="icon solid fa-bed"><span>Ubytování</span></a>
         <a href="#gifts" class="icon solid fa-gift"><span>Dary</span></a>
-        <a href="#photos" class="icon solid fa-image"><span>Společné fotky</span></a>
+        <a href="#photos" class="icon solid fa-image"><span>Fotky</span></a>
     </nav>
 
     <!-- Main -->
@@ -34,11 +34,11 @@
         <article id="home" class="panel intro">
             <header>
                 <div style="text-align: center">
-                <img src="images/brand.png" alt="">
+                <img class="title-brand" src="images/brand.png" alt="">
                 <p class="brown">31. 5. 2025</p>
                 </div>
             </header>
-            <a href="#program" class="jumplink pic">
+            <a href="#venue" class="jumplink pic">
                 <span class="arrow icon solid fa-chevron-right"><span>Program</span></span>
                 <img src="images/img.png" alt=""/>
             </a>
@@ -212,11 +212,19 @@
                 Moc oceníme pokud zachytíte úsměvy a vtipné momenty ostatních lidí, nejen novomanželů.
             </p>
 
+            <form target="/" id="dropzone" class="dropzone">
+                <input style="display: none;" name="file" type="file" multiple />
+            </form>
+
+
+
             <div style="text-align: center">
                 <div class="button">
                     Nahrát fotky
                 </div>
             </div>
+
+
         </article>
 
     </div>
@@ -227,11 +235,28 @@
 </div>
 
 <!-- Scripts -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/dropzone.min.js" integrity="sha512-U2WE1ktpMTuRBPoCFDzomoIorbOyUv0sP8B+INA3EzNAhehbzED1rOJg6bCqPf/Tuposxb5ja/MAUnC8THSbLQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="assets/js/jquery.min.js"></script>
 <script src="assets/js/browser.min.js"></script>
 <script src="assets/js/breakpoints.min.js"></script>
 <script src="assets/js/util.js"></script>
 <script src="assets/js/main.js"></script>
+<script src="https://apis.google.com/js/api.js"></script>
+<script>
+    Dropzone.autoDiscover = false;
+
+    const url = 'https://script.google.com/macros/s/AKfycbz2VcOhiMgQCuRPHVLzMKzQIWUM9v2c4IzTA7BAkW_FTU4Dpk_TgJKAr3vp5dg-P72k/exec';
+    document.addEventListener("DOMContentLoaded", function() {
+        new Dropzone("#dropzone", {
+            paramName: "file",
+            dictDefaultMessage: 'Vyberte nebo přetáhněte fotky sem',
+            url: url,
+            maxFilesize: 10,
+            acceptedFiles: "image/*",
+            addRemoveLinks: false,
+        });
+    });
+</script>
 
 </body>
 </html>
