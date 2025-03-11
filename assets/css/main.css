@@ -1946,45 +1946,90 @@ input, select, textarea {
 
 /* Main */
 
-@media screen and (max-width: 980px) {
+header {
+	margin-top: 1em;
+	text-align: center;
+}
+.brand {
+	height: 3em;
+}
+.brand-wrapper {
+	text-align: center;
+}
+
+.title-brand {
+	width: 100%;
+}
+.jumplink img {
+	width: 100% !important;
+	/*height: auto !important;*/
+}
+.header h2 {
+	margin-top: 50px;
+}
+
+@media screen and (min-width: 768px) {
+	.brand {
+		position: absolute;
+		right: 3.5rem;
+		top: 2em;
+		/*opacity: 0.5;*/
+		height: 1.8em;
+	}
+
 	.title-brand {
+		height: 3em;
+		width: auto;
+	}
+
+	header {
+		margin-top: 0;
+		text-align: left;
+	}
+
+	.jumplink img {
+		height: auto;
 		width: 100%;
 	}
-	.jumplink img {
-		width: 100% !important;
-		/*height: auto !important;*/
+
+	#nav a {
+		margin: 0 0.25em 0 0.25em;
 	}
 }
+
 
 @media screen and (min-width: 980px) {
-	.title-brand {
-		width: 400px;
-	}
+
 	.jumplink img {
-		height: 100% !important;
-		/*height: auto !important;*/
+		height: 100%;
+		width: auto;
+	}
+	.header h2 {
+		margin-top: 50px;
 	}
 }
 
-.brand {
-	position: absolute;
-	right: 3.5rem;
-	top: 2em;
-	/*opacity: 0.5;*/
-	height: 1.8em;
-
-}
 
 .agenda-item {
-	margin-left: 60px;
-	font-size: 20px;
-	line-height: 30px;
+	margin-left: 2em;
+	font-size: 0.8em;
+	line-height: 1.5em;
+	margin-bottom: 1em;
 }
 
 .brown {
 	font-size: 30px;
 	font-weight: 100;
 	color: #554B3B;
+}
+
+#nav a {
+	margin: 0 0.1em 0 0.1em;
+}
+
+.fa-arrow-right {
+	font-size: 0.6em;
+	margin-bottom: 0.2em;
 }
 
 	#main {
