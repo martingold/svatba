@@ -264,18 +264,94 @@
 <script src="assets/js/util.js"></script>
 <script src="assets/js/main.js"></script>
 <script src="https://apis.google.com/js/api.js"></script>
+
 <script>
+    const ACCESS_TOKEN = 'sl.u.AFn6RxCXvelL2-Pkd1_3BUnhmRJlaaFqt1jAEyrmoNapeeL3wZJSEnCFSgLkqR0dF91Zcbl73sA7ce_THZ99lvtjPz6oR1LZbV9Q9be5da-MeW0d3soy1PYp-oMoK4LdACyGggdEQld-EUa52bn01O69KKKT2zX0Sgpm7JZcqQvf4tTWePTq1fctqmS1m3Jbr4KGES0HBD7lfFV2NWPXJNNWAmrZbzy1T78NAdvRwFTekdXPHcQuhmAHmjPjl0g6-_mgx0-YnBp-FHnznvxO3ZVJlNQ_2x44obmMSsg3uc74vOwd2Qn05DNICcJvTTOFe4SMn73hwJMbWy8CzCRpXvd-T3M2-00H-aoOd2nNTWq-5v2SwnK8C2tJekzNpRVfuEIdwRFUDvM6KoTjdt2-lemI0jcJbw2kr-GZYt3yyYX2vxK3juec88U0-BFY9DCYycZsPkaCJaw_dOYTcbzZox4GwwcTG2gZ40dZpa-NmIZUB4_ou7inmzzJJGPwnORxbFxnLJV2so6pUNTUEyaYPW3BDs9viZzRBykDDrdxYp8AjXa1rl9V46JTj_jWo5LIjoeAkqLmt_UiabTFcafVwqFaTMJNL8pZXCg9xlFkB5IY_0OtZ5_r0y2kXFjSswexUZADVpchf_8RYGZxZO9Ma4EX9uOFpjwEE1mBVneyBV043uyf8j-5reTIFZnCAIECY-CpxpYE5nlHHDnZKLlhlE_rFdZ0ODSQoArQAPerI1Mn8l2tGHL9XwrOwgkdNKsvrvX8QO9pzvAk2VaszNbV9nR9b78oUumnPUWM_ZqC0NYnSoxq9E7yVpXCsXiCcEEnKEeB069EdFzHm3BtFwyR3H0991hiiGYA-uUsOhRTmqG-qUD7JW67nAQSZ4u-_IiPRtV6VoswlCoJ6ZcGVbvWAsc11jTJ6vIwi7ODekxLjZwoMiyfucrxq5o9Sp7mbX3WZJunYI11_n9LCY439LW5OetPNmnfvu_Kcbb0WV3dViH6EzNA89UlpkKYUCMuRED9GJ2t5FGnUY_Qyv-gU01-BERslK7Ja7FsFfRfPXW0-1Qsc-MEj7YiGXN4s4FBUP86iQkq0L0_nFolb8J4B70QTNnG5rKloHn8YA9xVoPtjUpjN0GHx3bNUbNziIaRAPhrEVS0z69kJwNOUX1HoWL7e0dZ1ZC-541YFUZRXN7C8_SnCtUZiqu0pMKUT1DR61MqP4mw-r6J3IToHJlGoGYHGTvRbXyrVx7xRSgFU7pBYQtBeu2tvl7jGTpe6m0sW88zGf9B1YXsOZUED8v3hnfUppNFC0d7pEW9soPUlsgEVgkBQUQqi4Zv_NUBoDwSuiQW49n_Pxtes-2Apno5TmLjfrZB_PqEmEYmVP0_VWLa-0SkEg4vrcKXJOuem6Xpry9ioxKoLHaHZVp3mU1nkJm1okbvlRwdpY2R2UjUTODev3HcHg'
+
     Dropzone.autoDiscover = false;
 
-    const url = 'https://script.google.com/macros/s/AKfycbz2VcOhiMgQCuRPHVLzMKzQIWUM9v2c4IzTA7BAkW_FTU4Dpk_TgJKAr3vp5dg-P72k/exec';
+    getLatestImages().then((r) => console.log(r));
+
+    async function getLatestImages() {
+        const response = await fetch("https://api.dropboxapi.com/2/files/list_folder", {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${ACCESS_TOKEN}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                path: '/uploads',
+                recursive: false,
+                include_media_info: true,
+                include_deleted: false
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.entries) {
+            const images = data.entries.filter(file =>
+                file[".tag"] === "file" && file.name.match(/\.(jpg|jpeg|png|gif)$/i)
+            );
+
+            images.sort((a, b) => new Date(b.server_modified) - new Date(a.server_modified));
+
+            return images.slice(0, 5);
+        } else {
+            console.error("Chyba při získávání souborů:", data);
+            return [];
+        }
+    }
+
+    async function uploadToDropbox(file) {
+        const dropboxPath = "/uploads/" + file.name;
+
+        try {
+            const response = await fetch("https://content.dropboxapi.com/2/files/upload", {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${ACCESS_TOKEN}`,
+                    "Dropbox-API-Arg": JSON.stringify({
+                        path: dropboxPath,
+                        mode: "add",
+                        autorename: true,
+                        mute: false
+                    }),
+                    "Content-Type": "application/octet-stream"
+                },
+                body: file
+            });
+
+            const data = await response.json();
+            return true;
+        } catch (error) {
+            return false;
+        }
+    }
+
     document.addEventListener("DOMContentLoaded", function() {
         const dropzone = new Dropzone("#dropzone", {
-            paramName: "file",
+            paramName: "#",
+            url: 'http://localhost',
             dictDefaultMessage: 'Vyberte nebo přetáhněte fotky sem',
-            url: url,
             maxFilesize: 10,
             acceptedFiles: "image/*",
+            autoProcessQueue: false,
             addRemoveLinks: false,
+            init: function (e) {
+                this.on("addedfile", async (file) => {
+                    uploadToDropbox(file).then(result => {
+                        console.log(result);
+                        const progressBar = file.previewElement.querySelector(".dz-progress");
+                        if (progressBar) progressBar.style.display = "none";
+                        if (result) {
+                            this.emit("success", file);
+                        } else {
+                            this.emit("error", file);
+                        }
+                    })
+                });
+            }
         });
     });
 </script>
