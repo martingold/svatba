@@ -1952,6 +1952,26 @@ input, select, textarea {
 
 /* Main */
 
+.brand {
+	position: absolute;
+	right: 3.5rem;
+	top: 2.5em;
+	/*opacity: 0.5;*/
+	height: 1.8em;
+}
+
+.agenda-item {
+	margin-left: 60px;
+	font-size: 20px;
+	line-height: 30px;
+}
+
+.brown {
+	font-size: 30px;
+	font-weight: 100;
+	color: #554B3B;
+}
+
 	#main {
 		position: relative;
 		overflow: hidden;
@@ -1971,7 +1991,7 @@ input, select, textarea {
 			transition: opacity 0.25s ease-in-out;
 			margin-bottom: 0;
 			position: relative;
-			padding: 3.5em 2.5em 2.5em 2.5em;
+			padding: 2.5em 2.5em 2.5em 2.5em;
 			width: 100%;
 		}
 
