@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Adventní kalendář</title>
+    <style>
+        :root {
+            --bg-dark: #0b2f28;
+            --bg-mid: #0f3d34;
+            --bg-accent: #0d493e;
+            --tile: #fffdf8;
+            --tile-muted: rgba(255, 253, 248, 0.75);
+            --gold: #c7a06b;
+            --gold-soft: #dcbf8a;
+            --red-soft: #b44b4b;
+            --text: #142422;
+            --text-muted: #244a44;
+            --shadow: rgba(0, 0, 0, 0.25);
+            --frost: rgba(255, 255, 255, 0.06);
+        }
+
+        body {
+            margin: 0;
+            font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+            color: var(--tile);
+            background:
+                    radial-gradient(1800px 800px at 10% -10%, rgba(255,255,255,0.06), transparent 60%),
+                    radial-gradient(1400px 600px at 90% 10%, rgba(255,255,255,0.05), transparent 70%),
+                    linear-gradient(160deg, var(--bg-dark), var(--bg-mid) 40%, var(--bg-accent));
+            min-height: 100vh;
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+        }
+
+        header {
+            padding: 24px 16px 12px;
+            text-align: center;
+        }
+        .title {
+            font-size: clamp(24px, 4vw, 36px);
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            margin: 4px 0;
+        }
+        .subtitle {
+            color: var(--gold-soft);
+            font-size: 14px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .notice {
+            text-align: center;
+            font-size: 14px;
+            color: var(--gold-soft);
+            margin: 8px 16px 0;
+            opacity: 0.9;
+        }
+
+        main {
+            padding: 20px 16px 32px;
+            display: grid;
+            place-items: center;
+        }
+
+        .calendar {
+            width: min(100%, 1040px);
+            display: grid;
+            grid-template-columns: repeat(6, minmax(120px, 1fr));
+            gap: 14px;
+        }
+
+        @media (max-width: 980px) {
+            .calendar { grid-template-columns: repeat(4, 1fr); }
+        }
+        @media (max-width: 640px) {
+            .calendar { grid-template-columns: repeat(3, 1fr); }
+        }
+        @media (max-width: 420px) {
+            .calendar { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        .day {
+            position: relative;
+            aspect-ratio: 1 / 1;
+            border-radius: 14px;
+            background:
+                    linear-gradient(180deg, var(--tile), var(--tile) 54%, var(--tile-muted)) padding-box,
+                    linear-gradient(160deg, rgba(255,255,255,0.6), rgba(255,255,255,0) 40%) border-box;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            color: var(--text);
+            box-shadow:
+                    0 2px 10px var(--shadow),
+                    inset 0 1px 0 rgba(255,255,255,0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 160ms ease, box-shadow 160ms ease, background 220ms ease;
+            overflow: hidden;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .day:hover { transform: translateY(-2px); }
+        .day:active { transform: translateY(0); }
+        .day.locked {
+            cursor: not-allowed;
+            background:
+                    linear-gradient(180deg, rgba(255,255,255,0.85), rgba(255,255,255,0.75)) padding-box,
+                    linear-gradient(160deg, rgba(255,255,255,0.6), rgba(255,255,255,0) 40%) border-box;
+            color: var(--text-muted);
+            opacity: 0.92;
+        }
+        .day.opened {
+            background:
+                    linear-gradient(180deg, #fff9f0, #fff5e6 60%, #fff0dc) padding-box,
+                    linear-gradient(160deg, rgba(255,255,255,0.7), rgba(255,255,255,0) 40%) border-box;
+            border-color: rgba(255, 241, 224, 0.9);
+        }
+        .day.today {
+            outline: 2px dashed var(--gold);
+            outline-offset: -6px;
+        }
+        .day .num {
+            font-weight: 800;
+            font-size: clamp(28px, 5vw, 40px);
+            letter-spacing: 0.02em;
+            z-index: 2;
+        }
+        .day .flake {
+            position: absolute;
+            font-size: 18px;
+            right: 10px;
+            top: 8px;
+            opacity: 0.6;
+        }
+        .day .sprig {
+            position: absolute;
+            left: -6px;
+            bottom: -6px;
+            width: 64px;
+            height: 64px;
+            background:
+                    radial-gradient(6px 6px at 80% 20%, rgba(180,75,75,0.2), transparent 60%),
+                    radial-gradient(24px 24px at 60% 60%, rgba(13,73,62,0.12), transparent 60%);
+            filter: blur(0.2px);
+            border-radius: 0 8px 0 0;
+            transform: rotate(-6deg);
+            opacity: 0.5;
+        }
+
+        /* Frosted top/bottom accents */
+        .frost {
+            position: fixed;
+            left: 0;
+            right: 0;
+            height: 120px;
+            pointer-events: none;
+            background:
+                    radial-gradient(600px 60px at 10% 0%, var(--frost), transparent 70%),
+                    radial-gradient(600px 60px at 90% 0%, var(--frost), transparent 70%),
+                    linear-gradient(to bottom, rgba(255,255,255,0.04), transparent);
+            backdrop-filter: blur(0.5px);
+        }
+        .frost.bottom {
+            top: auto;
+            bottom: 0;
+            background:
+                    radial-gradient(600px 60px at 10% 100%, var(--frost), transparent 70%),
+                    radial-gradient(600px 60px at 90% 100%, var(--frost), transparent 70%),
+                    linear-gradient(to top, rgba(255,255,255,0.04), transparent);
+        }
+
+        /* Modal for messages */
+        .modal {
+            position: fixed;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(6, 16, 14, 0.55);
+            padding: 18px;
+            z-index: 50;
+        }
+        .modal[aria-hidden="false"] { display: flex; }
+        .modal-card {
+            max-width: min(680px, 92vw);
+            background: #fffdf8;
+            color: var(--text);
+            border-radius: 16px;
+            box-shadow:
+                    0 12px 40px rgba(0, 0, 0, 0.4),
+                    inset 0 1px 0 rgba(255,255,255,0.6);
+            border: 1px solid rgba(214, 194, 164, 0.7);
+            padding: 22px 22px 18px;
+        }
+        .modal-title {
+            margin: 0 0 6px;
+            font-size: 28px;
+            color: #5a4021;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+        .modal-day {
+            color: var(--red-soft);
+            font-weight: 800;
+        }
+        .modal-text {
+            font-size: 24px;
+            line-height: 1.55;
+            color: #2a2a28;
+            margin: 8px 0 14px;
+        }
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        .btn {
+            appearance: none;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .btn.primary {
+            background: linear-gradient(160deg, #14493d, #0f3d34);
+            color: #fff9f0;
+            border: 1px solid rgba(255,255,255,0.28);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+        }
+        .btn.ghost {
+            background: transparent;
+            color: #3a3a36;
+            border: 1px solid rgba(0,0,0,0.08);
+        }
+
+        footer {
+            text-align: center;
+            padding: 16px 12px 26px;
+            color: rgba(255,255,255,0.8);
+            font-size: 12px;
+            letter-spacing: 0.04em;
+        }
+    </style>
+</head>
+<body>
+<div class="frost top" aria-hidden="true"></div>
+<header>
+    <div class="subtitle" id="subtitle">Prosinec</div>
+    <div class="title" id="title">Krásný advent Esterko ❤️</div>
+    <div class="notice" id="notice"></div>
+</header>
+
+<main>
+    <section class="calendar" id="calendar" aria-label="Advent calendar grid"></section>
+</main>
+
+<div class="modal" id="modal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-card">
+        <h2 class="modal-title" id="modal-title">
+            Den <span class="modal-day" id="modal-day">1</span>
+        </h2>
+        <div class="modal-text" id="modal-text">Surprise text</div>
+        <div class="modal-actions">
+            <button class="btn primary" id="modal-close" type="button">Zavřít</button>
+        </div>
+    </div>
+</div>
+
+<div class="frost bottom" aria-hidden="true"></div>
+
+<script>
+    (function () {
+        const now = new Date();
+        now.setMonth(11);
+        now.setDate(4);
+        const isDecember = now.getMonth() === 11;
+        const year = now.getFullYear();
+        const todayDate = now.getDate();
+        const maxDay = 24;
+        const allowedDay = isDecember ? Math.min(todayDate, maxDay) : 0;
+        const storageKey = "advent-opened-" + year;
+
+        const messages = {
+            1:  "Večer donesou prach i bláto, ráno zase jdou do dálného světa. Kde se každý pár na chvíli schová?",
+            2:  "Check under the couch cushions—something small is tucked away.",
+            3:  "Behind your favorite book on the shelf lies a festive surprise.",
+            4:  "Peek inside your winter coat pocket; it’s cozier than it seems.",
+            5:  "In the cookie jar, beneath the cookies, treasure calls your name.",
+            6:  "By the houseplant, under the pot, a tiny secret waits.",
+            7:  "Lift the rug corner by the door—just a little, just enough.",
+            8:  "In the tea tin, amongst the fragrant leaves, a note awaits.",
+            9:  "Check the mail slot—even if no post arrived today.",
+            10: "Beneath your pillow, a soft hint to brighten your night.",
+            11: "In the scarf drawer, tucked between the knits, joy is hidden.",
+            12: "Open the board game box you love—the card stack hides more.",
+            13: "By the window frame, where frost gathers, something glimmers.",
+            14: "In the cutlery drawer, deeper than usual, a surprise rests.",
+            15: "Behind a framed photo, a small memory meets a new one.",
+            16: "Inside your favorite mug, a cozy message is curled up.",
+            17: "In the toolbox—yes, really—between the screws and stories.",
+            18: "Check your backpack’s small pocket; adventures hide in zippers.",
+            19: "Under the bed’s edge, where dust and mysteries dwell.",
+            20: "In the sock drawer, wrapped in warmth, a tiny delight.",
+            21: "By the Christmas lights, follow the twinkle to a clue.",
+            22: "Behind the curtain, near the sill, find a spark of cheer.",
+            23: "In the oven mitt drawer, snug and safe, something waits.",
+            24: "Under the tree skirt, where magic gathers—your gift is near."
+        };
+
+        /** State */
+        const openedDays = new Set(JSON.parse(localStorage.getItem(storageKey) || "[]"));
+        const calendarEl = document.getElementById("calendar");
+
+        /** Modal elements */
+        const modal = document.getElementById("modal");
+        const modalDayEl = document.getElementById("modal-day");
+        const modalTextEl = document.getElementById("modal-text");
+        const modalClose = document.getElementById("modal-close");
+        let currentModalDay = null;
+
+        for (let day = 1; day <= maxDay; day++) {
+            const button = document.createElement("button");
+            button.className = "day";
+            button.type = "button";
+            button.setAttribute("data-day", String(day));
+            button.setAttribute("aria-label", "Open day " + day);
+            button.innerHTML = `
+            <span class="num">${day}</span>
+            <span class="flake" aria-hidden="true">✻</span>
+            <span class="sprig" aria-hidden="true"></span>
+          `;
+
+            const isLocked = day > allowedDay;
+            if (isLocked) {
+                button.classList.add("locked");
+                button.setAttribute("aria-disabled", "true");
+            } else {
+                button.addEventListener("click", () => openDay(day));
+            }
+            if (openedDays.has(day)) {
+                button.classList.add("opened");
+            }
+            if (isDecember && day === allowedDay && allowedDay !== 0) {
+                button.classList.add("today");
+            }
+            calendarEl.appendChild(button);
+        }
+
+        function openDay(day) {
+            currentModalDay = day;
+            const text = messages[day] || "A cozy moment awaits you today.";
+            modalDayEl.textContent = String(day);
+            modalTextEl.textContent = text;
+            modal.setAttribute("aria-hidden", "false");
+            document.body.style.overflow = "hidden";
+            markOpened(day);
+            reflectOpenedClass(day);
+        }
+
+        function markOpened(day) {
+            if (!openedDays.has(day)) {
+                openedDays.add(day);
+                localStorage.setItem(storageKey, JSON.stringify(Array.from(openedDays)));
+            }
+        }
+
+        function reflectOpenedClass(day) {
+            const sel = '.day[data-day="' + day + '"]';
+            const el = calendarEl.querySelector(sel);
+            if (el) el.classList.add("opened");
+        }
+
+        function closeModal() {
+            modal.setAttribute("aria-hidden", "true");
+            document.body.style.overflow = "";
+        }
+        modalClose.addEventListener("click", closeModal);
+        modal.addEventListener("click", (e) => {
+            if (e.target === modal) closeModal();
+        });
+        document.addEventListener("keydown", (e) => {
+            if (modal.getAttribute("aria-hidden") === "false") {
+                if (e.key === "Escape") closeModal();
+                if (e.key === "ArrowRight") goNext();
+                if (e.key === "ArrowLeft") goPrev();
+            }
+        });
+
+        if (isDecember && allowedDay >= 1 && !openedDays.has(allowedDay)) {
+            const todayTile = calendarEl.querySelector('.day[data-day="' + allowedDay + '"]');
+            if (todayTile) {
+                todayTile.style.transition = "transform 200ms ease";
+                setTimeout(() => { todayTile.style.transform = "translateY(-3px)"; }, 120);
+                setTimeout(() => { todayTile.style.transform = ""; }, 420);
+            }
+        }
+    })();
+</script>
+</body>
+</html>
+
+
