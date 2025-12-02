@@ -275,8 +275,6 @@
 <script>
     (function () {
         const now = new Date();
-        now.setMonth(11);
-        now.setDate(4);
         const isDecember = now.getMonth() === 11;
         const year = now.getFullYear();
         const todayDate = now.getDate();
@@ -285,9 +283,9 @@
         const storageKey = "advent-opened-" + year;
 
         const messages = {
-            1:  "Večer donesou prach i bláto, ráno zase jdou do dálného světa. Kde se každý pár na chvíli schová?",
-            2:  "Check under the couch cushions—something small is tucked away.",
-            3:  "Behind your favorite book on the shelf lies a festive surprise.",
+            1:  "Večer donesou prach i bláto, ráno zase jdou do dálného světa. Kde se každý pár na chvíli schová? Tam mě hledej",
+            2:  "Když mě necháš dlouho venku, tak ztvrdnu. Jsem z kakaa, vajec a občas i jablek. Kdepak vznikám?",
+            3:  "Ke svátku mám nový domeček, i když ho nevyužiju celý, protože nemám plyn, tak jsem za něj ráda. Včera mi, ať se uskromním, protože ti tu mám něco pohlídat. Kdo jsem?",
             4:  "Peek inside your winter coat pocket; it’s cozier than it seems.",
             5:  "In the cookie jar, beneath the cookies, treasure calls your name.",
             6:  "By the houseplant, under the pot, a tiny secret waits.",
